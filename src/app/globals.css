@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dusty-rose: #C28285;
+  --color-dusty-rose-light: #F4E2E3;
+  --color-dusty-rose-dark: #A36467;
+  --color-lavender: #E6E6FA;
+  --color-lavender-grey: #C4C3D0;
+  --color-lavender-grey-light: #F0EFF4;
+  --color-lavender-grey-dark: #8F8E9C;
+  --color-ivory: #FFFFF0;
+  --color-ivory-dark: #FAF8F0;
+  --color-charcoal: #2C2523;
+  --color-charcoal-light: #504441;
+}
+
+:root {
+  --background: #FFFFF0; /* Ivory */
+  --foreground: #2C2523; /* Charcoal */
+  --card-bg: rgba(230, 230, 250, 0.4); /* soft Lavender background */
+  --card-border: rgba(196, 195, 208, 0.45); /* Lavender grey */
+  --dusty-rose: #C28285;
+  --lavender: #E6E6FA;
+  --lavender-grey: #C4C3D0;
+  --ivory: #FFFFF0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Beautiful Animated Background for luxury design theme */
+.aurora-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -10;
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(194, 130, 133, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 10%, rgba(196, 195, 208, 0.3) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(230, 230, 250, 0.5) 0%, transparent 55%);
+  overflow: hidden;
+}
+
+/* Glassmorphism Card Style */
+.glass-panel {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 20px 0 rgba(196, 195, 208, 0.15);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(194, 130, 133, 0.3);
+  box-shadow: 0 8px 30px 0 rgba(194, 130, 133, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(196, 195, 208, 0.1);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(194, 130, 133, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(194, 130, 133, 0.5);
+}
+
+/* Accent Gradients for Buttons and Texts */
+.text-gradient {
+  background: linear-gradient(135deg, #C28285 0%, #C4C3D0 50%, #A36467 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-primary {
+  background-color: var(--dusty-rose);
+  color: #FFFFF0;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(194, 130, 133, 0.2);
+}
+
+.btn-primary:hover {
+  background-color: #A36467;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(194, 130, 133, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--foreground);
+  border: 1px solid var(--card-border);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-secondary:hover {
+  background-color: rgba(196, 195, 208, 0.15);
+  border-color: var(--lavender-grey);
+}
