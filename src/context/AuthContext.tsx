@@ -139,7 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setUser(null);
       setLoading(false);
-      router.push('/');
+      router.replace('/login');
     }
   };
 

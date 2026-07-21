@@ -48,10 +48,10 @@ export default function AdminDesignsManagement() {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Header controls bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-2xl border border-lavender-grey/30 shadow-sm">
-        
+
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -93,97 +93,236 @@ export default function AdminDesignsManagement() {
         {isLoading ? (
           <div className="p-12 space-y-4">
             {Array.from({ length: 5 }).map((_, idx) => (
-              <div key={idx} className="bg-slate-100/50 h-12 rounded-xl animate-pulse" />
+              <div
+                key={idx}
+                className="bg-slate-100/50 h-12 rounded-xl animate-pulse"
+              />
             ))}
           </div>
         ) : designs.length === 0 ? (
-          <div className="text-center py-12 text-xs text-gray-500 font-bold">No design concepts found.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="border-b border-lavender-grey/25 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
-                  <th className="p-4">Preview</th>
-                  <th className="p-4">Design Title</th>
-                  <th className="p-4">Style</th>
-                  <th className="p-4">Room Type</th>
-                  <th className="p-4">Featured</th>
-                  <th className="p-4">Status</th>
-                  <th className="p-4">Created Date</th>
-                  <th className="p-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {designs.map((d: any) => (
-                  <tr key={d._id || d.id} className="border-b border-lavender-grey/20 hover:bg-slate-50/50 transition-colors">
-                    <td className="p-4">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={d.img} alt={d.title} className="w-10 h-10 rounded-xl object-cover border border-lavender-grey/25 bg-black/5" />
-                    </td>
-                    <td className="p-4 font-bold text-charcoal min-w-[120px]">
-                      {d.title}
-                    </td>
-                    <td className="p-4 capitalize text-gray-500 font-medium">
-                      {d.style}
-                    </td>
-                    <td className="p-4 text-gray-500">
-                      {d.roomType}
-                    </td>
-                    <td className="p-4">
-                      {d.featured ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-bold border border-amber-250">
-                          Featured
-                        </span>
-                      ) : (
-                        <span className="text-[10px] text-gray-400 font-medium">Standard</span>
-                      )}
-                    </td>
-                    <td className="p-4">
-                      {d.published ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-250">
-                          Published
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-gray-550 bg-slate-50 px-2 py-0.5 rounded-full font-medium border border-slate-200">
-                          Draft
-                        </span>
-                      )}
-                    </td>
-                    <td className="p-4 text-gray-400 font-medium">
-                      {new Date(d.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="p-4 text-right">
-                      <div className="flex justify-end items-center gap-2">
-                        <button
-                          onClick={() => setViewingDesign(d)}
-                          className="p-1.5 hover:text-dusty-rose hover:bg-lavender-grey/10 rounded-lg text-gray-400 transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        
-                        <Link
-                          href={`/admin/designs/edit/${d._id || d.id}`}
-                          className="p-1.5 hover:text-dusty-rose hover:bg-lavender-grey/10 rounded-lg text-gray-400 transition-colors inline-block"
-                          title="Edit Design"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-
-                        <button
-                          onClick={() => setConfirmDeleteId(d._id || d.id)}
-                          className="p-1.5 hover:text-rose-500 hover:bg-rose-50 rounded-lg text-gray-400 transition-colors"
-                          title="Delete Design"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="text-center py-12 text-xs text-gray-500 font-bold">
+            No design concepts found.
           </div>
+        ) : (
+          <>
+            {/* Desktop Table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-lavender-grey/25 text-gray-400 font-bold uppercase tracking-wider bg-slate-50/50">
+                    <th className="p-4">Preview</th>
+                    <th className="p-4">Design Title</th>
+                    <th className="p-4">Style</th>
+                    <th className="p-4">Room Type</th>
+                    <th className="p-4">Featured</th>
+                    <th className="p-4">Status</th>
+                    <th className="p-4">Created Date</th>
+                    <th className="p-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {designs.map((d: any) => (
+                    <tr
+                      key={d._id || d.id}
+                      className="border-b border-lavender-grey/20 hover:bg-slate-50/50 transition-colors"
+                    >
+                      <td className="p-4">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={d.img}
+                          alt={d.title}
+                          className="w-10 h-10 rounded-xl object-cover border border-lavender-grey/25 bg-black/5"
+                        />
+                      </td>
+
+                      <td className="p-4 font-bold text-charcoal min-w-[120px]">
+                        {d.title}
+                      </td>
+
+                      <td className="p-4 capitalize text-gray-500 font-medium">
+                        {d.style}
+                      </td>
+
+                      <td className="p-4 text-gray-500">
+                        {d.roomType}
+                      </td>
+
+                      <td className="p-4">
+                        {d.featured ? (
+                          <span className="inline-flex items-center text-[10px] text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full font-bold border border-amber-250">
+                            Featured
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            Standard
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="p-4">
+                        {d.published ? (
+                          <span className="inline-flex items-center text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-250">
+                            Published
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center text-[10px] text-gray-550 bg-slate-50 px-2 py-0.5 rounded-full font-medium border border-slate-200">
+                            Draft
+                          </span>
+                        )}
+                      </td>
+
+                      <td className="p-4 text-gray-400 font-medium">
+                        {new Date(d.createdAt).toLocaleDateString()}
+                      </td>
+
+                      <td className="p-4 text-right">
+                        <div className="flex justify-end items-center gap-2">
+                          <button
+                            onClick={() => setViewingDesign(d)}
+                            className="p-1.5 hover:text-dusty-rose hover:bg-lavender-grey/10 rounded-lg text-gray-400 transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+
+                          <Link
+                            href={`/admin/designs/edit/${d._id || d.id}`}
+                            className="p-1.5 hover:text-dusty-rose hover:bg-lavender-grey/10 rounded-lg text-gray-400 transition-colors inline-block"
+                            title="Edit Design"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Link>
+
+                          <button
+                            onClick={() =>
+                              setConfirmDeleteId(d._id || d.id)
+                            }
+                            className="p-1.5 hover:text-rose-500 hover:bg-rose-50 rounded-lg text-gray-400 transition-colors"
+                            title="Delete Design"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards */}
+            <div className="md:hidden p-4 space-y-4">
+              {designs.map((d: any) => (
+                <div
+                  key={d._id || d.id}
+                  className="rounded-2xl border border-lavender-grey/20 bg-white p-4 shadow-sm"
+                >
+                  {/* Top Section */}
+                  <div className="flex items-start gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={d.img}
+                      alt={d.title}
+                      className="w-16 h-16 rounded-xl object-cover border border-lavender-grey/25 bg-black/5 shrink-0"
+                    />
+
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-charcoal text-sm truncate">
+                        {d.title}
+                      </h3>
+
+                      <p className="text-xs text-gray-500 capitalize mt-1">
+                        {d.style || "No style"}
+                      </p>
+
+                      <p className="text-xs text-gray-400 mt-1">
+                        {d.roomType || "No room type"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-lavender-grey/15">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+                        Featured
+                      </p>
+
+                      <div className="mt-1">
+                        {d.featured ? (
+                          <span className="inline-flex text-[10px] text-amber-600 bg-amber-50 px-2 py-1 rounded-full font-bold">
+                            Featured
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 font-medium">
+                            Standard
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+                        Status
+                      </p>
+
+                      <div className="mt-1">
+                        {d.published ? (
+                          <span className="inline-flex text-[10px] text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full font-bold">
+                            Published
+                          </span>
+                        ) : (
+                          <span className="inline-flex text-[10px] text-gray-500 bg-slate-50 px-2 py-1 rounded-full font-medium">
+                            Draft
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="col-span-2">
+                      <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400">
+                        Created Date
+                      </p>
+
+                      <p className="text-xs text-gray-500 font-medium mt-1">
+                        {new Date(d.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-lavender-grey/15">
+                    <button
+                      onClick={() => setViewingDesign(d)}
+                      className="p-2 hover:text-dusty-rose hover:bg-lavender-grey/10 rounded-lg text-gray-400 transition-colors"
+                      title="View Details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+
+                    <Link
+                      href={`/admin/designs/edit/${d._id || d.id}`}
+                      className="p-2 hover:text-dusty-rose hover:bg-lavender-grey/10 rounded-lg text-gray-400 transition-colors"
+                      title="Edit Design"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Link>
+
+                    <button
+                      onClick={() =>
+                        setConfirmDeleteId(d._id || d.id)
+                      }
+                      className="p-2 hover:text-rose-500 hover:bg-rose-50 rounded-lg text-gray-400 transition-colors"
+                      title="Delete Design"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
 
         {/* Pagination controls */}

@@ -25,7 +25,7 @@ import {
 import {
   Sparkles, LayoutDashboard, Compass, Heart, ClipboardList,
   User, Wallet, Settings as SettingsIcon, BarChart3, Database, FileSpreadsheet,
-  Trash2, Plus, LogOut, CheckCircle2, ShieldCheck, ShoppingCart, Info, Star
+  Trash2, Plus, LogOut, CheckCircle2, ShieldCheck, ShoppingCart, Info, Star, ArrowLeft
 } from 'lucide-react';
 
 const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -275,6 +275,16 @@ export default function DashboardPage() {
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       <Navbar />
+
+      <div className="px-6 pt-6 shrink-0 w-full">
+        <Link 
+          href="/" 
+          className="group inline-flex items-center gap-2 rounded-xl border border-[#C4C3D0] bg-[#FFFFF0] px-4 py-2.5 text-xs font-bold text-[#2C2523] shadow-sm transition-all duration-300 hover:scale-[1.02] hover:border-[#C28285] hover:bg-[#E6E6FA]/40 hover:shadow-md active:scale-[0.98]"
+        >
+          <ArrowLeft className="w-4.5 h-4.5 text-[#C28285] transition-transform duration-300 group-hover:-translate-x-1" />
+          <span>Back to Homepage</span>
+        </Link>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0 w-full px-6 py-6 overflow-y-auto lg:overflow-hidden">
         {/* Sidebar Navigation */}

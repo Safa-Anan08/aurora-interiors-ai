@@ -65,30 +65,15 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           setLoading(false);
         }
       } else {
-        // Fallback to localStorage if guest
-        try {
-          const stored = localStorage.getItem('aurora_wishlist');
-          if (stored) {
-            setWishlist(JSON.parse(stored));
-          } else {
-            setWishlist([]);
-          }
-        } catch (err) {
-          console.error('Failed to parse localStorage wishlist', err);
-        }
+        // Guests/non-logged-in users have no wishlist. Clear state and remove guest storage.
+        setWishlist([]);
+        localStorage.removeItem('aurora_wishlist');
       }
       setInitialized(true);
     };
 
     initWishlist();
   }, [user]);
-
-  // Save guest wishlist to localStorage
-  useEffect(() => {
-    if (initialized && !user) {
-      localStorage.setItem('aurora_wishlist', JSON.stringify(wishlist));
-    }
-  }, [wishlist, initialized, user]);
 
   const fetchWishlist = async () => {
     if (!user) return;
@@ -114,6 +99,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addToWishlist = async (product: Product) => {
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
+
     if (wishlist.some(p => p.id === product.id)) {
       toast.error('Product is already in wishlist.');
       return;
@@ -121,10 +111,6 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
     setLoading(true);
     try {
-      if (!user) {
-        toast.error('Please login to continue.');
-        return;
-      }
       // Sync to Mongo
       const res = await axios.post(`${SERVER_URL}/api/wishlist`, { productId: product.id });
       if (res.data.success) {
@@ -150,31 +136,31 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeFromWishlist = async (productId: string) => {
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
+
     const product = wishlist.find(p => p.id === productId);
     const prodName = product ? product.name : 'Product';
 
     setLoading(true);
     try {
-      if (!user) {
-        setWishlist(prev => prev.filter(p => p.id !== productId));
+      const res = await axios.delete(`${SERVER_URL}/api/wishlist/${productId}`);
+      if (res.data.success) {
+        const mapped = res.data.wishlist.products.map((p: any) => ({
+          id: p._id || p.id,
+          name: p.name,
+          category: p.category,
+          price: p.price,
+          description: p.description,
+          image: p.image,
+          specs: p.specs instanceof Map ? Object.fromEntries(p.specs) : p.specs || {},
+          rating: p.rating,
+          reviewsCount: p.reviewsCount
+        }));
+        setWishlist(mapped);
         toast.success(`${prodName} removed from wishlist.`);
-      } else {
-        const res = await axios.delete(`${SERVER_URL}/api/wishlist/${productId}`);
-        if (res.data.success) {
-          const mapped = res.data.wishlist.products.map((p: any) => ({
-            id: p._id || p.id,
-            name: p.name,
-            category: p.category,
-            price: p.price,
-            description: p.description,
-            image: p.image,
-            specs: p.specs instanceof Map ? Object.fromEntries(p.specs) : p.specs || {},
-            rating: p.rating,
-            reviewsCount: p.reviewsCount
-          }));
-          setWishlist(mapped);
-          toast.success(`${prodName} removed from wishlist.`);
-        }
       }
     } catch (err: any) {
       toast.error('Failed to remove from wishlist.');

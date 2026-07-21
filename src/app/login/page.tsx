@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,11 +19,31 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-export default function LoginPage() {
-  const { login, googleLogin, demoLogin } = useAuth();
+const getSafeRedirectUrl = (redirectParam: string | null, fallbackUrl: string): string => {
+  if (!redirectParam) return fallbackUrl;
+  if (redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
+    if (redirectParam.startsWith('/login') || redirectParam.startsWith('/register')) {
+      return fallbackUrl;
+    }
+    return redirectParam;
+  }
+  return fallbackUrl;
+};
+
+function LoginPageForm() {
+  const { user, loading, login, googleLogin, demoLogin } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect') || searchParams.get('returnTo');
+
+  useEffect(() => {
+    if (!loading && user) {
+      const target = user.role === 'admin' ? '/admin' : getSafeRedirectUrl(redirectParam, '/dashboard');
+      router.replace(target);
+    }
+  }, [user, loading, router, redirectParam]);
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema)
@@ -37,20 +57,16 @@ export default function LoginPage() {
 
       toast.success("Logged in successfully!");
 
-      if (loggedInUser.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      const target = loggedInUser.role === "admin"
+        ? "/admin"
+        : getSafeRedirectUrl(redirectParam, "/dashboard");
+      router.replace(target);
     } catch (err: any) {
       toast.error(err.message || "Login credentials invalid.");
     } finally {
       setSubmitting(false);
     }
   };
-
-  // Google login handled via <GoogleLogin> component below
-
 
   const handleDemoLogin = async (role: 'user' | 'admin') => {
     setSubmitting(true);
@@ -60,11 +76,10 @@ export default function LoginPage() {
 
       toast.success(`Welcome to the ${loggedInUser.role} dashboard!`);
 
-      if (loggedInUser.role === 'admin') {
-        router.push('/admin');
-      } else {
-        router.push('/dashboard');
-      }
+      const target = loggedInUser.role === 'admin'
+        ? '/admin'
+        : getSafeRedirectUrl(redirectParam, '/dashboard');
+      router.replace(target);
     } catch (err) {
       toast.error('Demo authentication node error.');
     } finally {
@@ -280,12 +295,12 @@ export default function LoginPage() {
               <button
                 type="button"
                 disabled
-                className="w-full py-2.5 rounded-xl bg-[#E6E6FA]/40 text-xs font-bold text-[#2C2523] flex items-center justify-center"
+                className="w-full py-2.5 rounded-xl border border-[#C4C3D0] bg-[#FFFFF0] hover:bg-[#E6E6FA]/40 text-xs font-bold text-[#2C2523] flex items-center justify-center gap-2 shadow-sm transition-all"
               >
-                Signing in with Google…
+                Connecting to Google…
               </button>
             ) : (
-              <div className="w-full">
+              <div className="w-full flex justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl overflow-hidden [&>div]:w-full">
                 <GoogleLogin
                   onSuccess={(credentialResponse) => {
                     const token = credentialResponse?.credential;
@@ -294,7 +309,8 @@ export default function LoginPage() {
                       googleLogin(token)
                         .then(() => {
                           toast.success('Authorized via Google successfully!');
-                          router.push('/dashboard');
+                          const target = getSafeRedirectUrl(redirectParam, '/dashboard');
+                          router.replace(target);
                         })
                         .catch(() => {
                           toast.error('Google authorization error.');
@@ -303,6 +319,11 @@ export default function LoginPage() {
                     }
                   }}
                   onError={() => toast.error('Google authorization error.')}
+                  theme="outline"
+                  size="large"
+                  text="signin_with"
+                  shape="rectangular"
+                  width="400"
                 />
               </div>
             )}
@@ -341,5 +362,17 @@ export default function LoginPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFFF0]">
+        <div className="w-8 h-8 rounded-full border-2 border-[#C28285] border-t-transparent animate-spin" />
+      </div>
+    }>
+      <LoginPageForm />
+    </Suspense>
   );
 }

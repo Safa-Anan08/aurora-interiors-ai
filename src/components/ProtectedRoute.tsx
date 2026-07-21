@@ -18,10 +18,12 @@ export default function ProtectedRoute({ children, role }: ProtectedRouteProps) 
     if (!loading) {
       if (!user) {
         toast.error("Access denied. Please log in to access this page.");
-        router.push('/login');
+        const currentPath = typeof window !== 'undefined' ? window.location.pathname + window.location.search : '';
+        const target = currentPath && currentPath !== '/' ? `/login?redirect=${encodeURIComponent(currentPath)}` : '/login';
+        router.replace(target);
       } else if (role === 'admin' && user.role !== 'admin') {
         toast.error("Access denied. Administrator privileges required.");
-        router.push('/dashboard');
+        router.replace('/dashboard');
       }
     }
   }, [user, loading, role, router]);

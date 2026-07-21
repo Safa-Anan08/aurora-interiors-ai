@@ -114,7 +114,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addToCart = async (newItem: Omit<CartItem, 'quantity'>, quantity = 1) => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
     setLoading(true);
     try {
       const res = await axios.post(`${SERVER_URL}/api/cart`, { productId: newItem.id, quantity });
@@ -139,7 +142,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const addBundleToCart = async (items: Omit<CartItem, 'quantity'>[]) => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
     setLoading(true);
     try {
       for (const item of items) {
@@ -155,7 +161,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeFromCart = async (id: string) => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
     const item = cart.find(i => i.id === id);
     const itemName = item ? item.name : 'Product';
 
@@ -183,7 +192,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateQuantity = async (id: string, quantity: number) => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
     if (quantity <= 0) {
       await removeFromCart(id);
       return;
@@ -212,7 +224,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const clearCart = async () => {
-    if (!user) return;
+    if (!user) {
+      toast.error('Please login to continue');
+      return;
+    }
     setLoading(true);
     try {
       const res = await axios.delete(`${SERVER_URL}/api/cart`);

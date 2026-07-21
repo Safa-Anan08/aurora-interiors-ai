@@ -43,8 +43,7 @@ export default function ProductCard({ product, onViewDetails, layout = 'grid' }:
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      toast.error('Please sign in to add products to your wishlist.');
-      window.location.href = '/login';
+      toast.error('Please login to continue');
       return;
     }
 
@@ -58,8 +57,7 @@ export default function ProductCard({ product, onViewDetails, layout = 'grid' }:
   const handleCartToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!user) {
-      toast.error('Please sign in to add products to your cart.');
-      window.location.href = '/login';
+      toast.error('Please login to continue');
       return;
     }
 

@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
 import { Sparkles, User, Mail, Lock, ArrowRight, Compass, UserCheck, Eye, EyeOff } from 'lucide-react';
-import { FcGoogle } from "react-icons/fc";
 import { motion } from 'framer-motion';
+import { GoogleLogin } from '@react-oauth/google';
 
 const registerSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -24,13 +24,33 @@ const registerSchema = z.object({
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
-export default function RegisterPage() {
-  const { registerFull } = useAuth();
+const getSafeRedirectUrl = (redirectParam: string | null, fallbackUrl: string): string => {
+  if (!redirectParam) return fallbackUrl;
+  if (redirectParam.startsWith('/') && !redirectParam.startsWith('//')) {
+    if (redirectParam.startsWith('/login') || redirectParam.startsWith('/register')) {
+      return fallbackUrl;
+    }
+    return redirectParam;
+  }
+  return fallbackUrl;
+};
+
+function RegisterPageForm() {
+  const { user, loading, registerFull } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get('redirect') || searchParams.get('returnTo');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) {
+      const target = user.role === 'admin' ? '/admin' : getSafeRedirectUrl(redirectParam, '/dashboard');
+      router.replace(target);
+    }
+  }, [user, loading, router, redirectParam]);
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema)
@@ -43,7 +63,8 @@ export default function RegisterPage() {
     try {
       await registerFull(data.name, data.email, data.password);
       toast.success('Registration completed! Welcome.');
-      router.push('/dashboard');
+      const target = getSafeRedirectUrl(redirectParam, '/dashboard');
+      router.replace(target);
     } catch (err: any) {
       toast.error(err.message || 'Registration failed. Try again.');
     } finally {
@@ -343,13 +364,40 @@ export default function RegisterPage() {
             </div>
 
             {/* Google Signup */}
-            <button
-              type="button"
-              className="w-full py-2.5 rounded-xl border border-[#C4C3D0] bg-[#FFFFF0] hover:bg-[#E6E6FA]/40 text-xs font-bold text-[#2C2523] flex items-center justify-center gap-2 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
-            >
-              <FcGoogle className="w-4.5 h-4.5" />
-              <span>Continue with Google</span>
-            </button>
+            {submitting ? (
+              <button
+                type="button"
+                disabled
+                className="w-full py-2.5 rounded-xl border border-[#C4C3D0] bg-[#FFFFF0] hover:bg-[#E6E6FA]/40 text-xs font-bold text-[#2C2523] flex items-center justify-center gap-2 shadow-sm transition-all"
+              >
+                Connecting to Google…
+              </button>
+            ) : (
+              <div className="w-full flex justify-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] rounded-xl overflow-hidden [&>div]:w-full">
+                <GoogleLogin
+                  onSuccess={(credentialResponse) => {
+                    const token = credentialResponse?.credential;
+                    if (token) {
+                      setSubmitting(true);
+                      googleLogin(token)
+                        .then(() => {
+                          toast.success('Authorized via Google successfully!');
+                          const target = getSafeRedirectUrl(redirectParam, '/dashboard');
+                          router.replace(target);
+                        })
+                        .catch(() => toast.error('Google authorization error.'))
+                        .finally(() => setSubmitting(false));
+                    }
+                  }}
+                  onError={() => toast.error('Google authorization error.')}
+                  theme="outline"
+                  size="large"
+                  text="signup_with"
+                  shape="rectangular"
+                  width="400"
+                />
+              </div>
+            )}
 
             {/* Navigation Footer */}
             <div className="text-center text-xs pt-2 text-[#504441]">
@@ -364,6 +412,18 @@ export default function RegisterPage() {
       </div>
 
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-[#FFFFF0]">
+        <div className="w-8 h-8 rounded-full border-2 border-[#C28285] border-t-transparent animate-spin" />
+      </div>
+    }>
+      <RegisterPageForm />
+    </Suspense>
   );
 }
 
