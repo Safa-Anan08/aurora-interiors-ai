@@ -13,7 +13,7 @@ import {
   LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend 
 } from 'recharts';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 const COLORS = ['#B07575', '#C3BECA', '#8E5A5A', '#A8A3B0', '#E2DEE6'];
 
 export default function AdminDashboardOverview() {

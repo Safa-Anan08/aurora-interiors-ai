@@ -7,7 +7,7 @@ import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { Search, ChevronLeft, ChevronRight, Plus, Pencil, Trash2, Eye, Sparkles, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminDesignsManagement() {
   const queryClient = useQueryClient();

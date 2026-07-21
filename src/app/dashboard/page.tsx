@@ -28,7 +28,7 @@ import {
   Trash2, Plus, LogOut, CheckCircle2, ShieldCheck, ShoppingCart, Info, Star
 } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 // Profile update validation schema
 const profileSchema = z.object({

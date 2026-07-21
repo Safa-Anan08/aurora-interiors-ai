@@ -45,8 +45,11 @@ export default function Home() {
   const { data: productsData, isLoading: productsLoading } = useQuery({
     queryKey: ['homeProducts'],
     queryFn: async () => {
-      const res = await axios.get(`${SERVER_URL}/api/marketplace/products`);
-      return res.data;
+      const res = await axios.get(`${SERVER_URL}/api/marketplace/products`, {
+        params: { limit: 100 }
+      });
+      // API now returns paginated envelope { data: [...], ... }
+      return res.data.data ?? res.data;
     }
   });
 

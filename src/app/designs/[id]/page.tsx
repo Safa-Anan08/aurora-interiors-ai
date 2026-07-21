@@ -31,8 +31,10 @@ export default function DesignDetailsPage() {
   const { data: products, isLoading: productsLoading } = useQuery({
     queryKey: ['marketplaceProducts'],
     queryFn: async () => {
-      const res = await axios.get(`${SERVER_URL}/api/marketplace/products`);
-      return res.data;
+      const res = await axios.get(`${SERVER_URL}/api/marketplace/products`, {
+        params: { limit: 100 }
+      });
+      return res.data.data ?? res.data;
     }
   });
 

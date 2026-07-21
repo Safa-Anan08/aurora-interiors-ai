@@ -8,7 +8,7 @@ import {
 } from 'recharts';
 import { Heart, Star, Layout, Bookmark } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminWishlistsAnalytics() {
   const { data: res, isLoading } = useQuery({

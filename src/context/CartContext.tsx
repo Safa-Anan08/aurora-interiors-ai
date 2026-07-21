@@ -28,7 +28,7 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();

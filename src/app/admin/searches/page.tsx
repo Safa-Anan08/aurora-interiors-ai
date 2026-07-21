@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import { Search, AlertCircle, Compass, Palette } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminSearchesAnalytics() {
   const { data: res, isLoading } = useQuery({

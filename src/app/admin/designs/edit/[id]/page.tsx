@@ -51,9 +51,12 @@ export default function EditDesignPage() {
       try {
         // Fetch products
         setLoadingProducts(true);
-        const productsRes = await axios.get(`${SERVER_URL}/api/marketplace/products`);
-        if (Array.isArray(productsRes.data)) {
-          setAvailableProducts(productsRes.data);
+        const productsRes = await axios.get(`${SERVER_URL}/api/marketplace/products`, {
+          params: { limit: 100 }
+        });
+        const items = productsRes.data.data ?? productsRes.data;
+        if (Array.isArray(items)) {
+          setAvailableProducts(items);
         }
         setLoadingProducts(false);
 

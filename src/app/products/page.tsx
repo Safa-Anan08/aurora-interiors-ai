@@ -5,7 +5,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import MarketplaceTab from '../../components/MarketplaceTab';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export default function ExploreProductsPage() {
   return (

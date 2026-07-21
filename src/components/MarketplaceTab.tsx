@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import ProductCard from './ProductCard';
+import Pagination from './Pagination';
 import { Search, ShoppingCart, Star, Filter, Heart, Eye } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -17,7 +18,14 @@ interface Product {
   specs: Record<string, string>;
   rating: number;
   reviewsCount: number;
+}
 
+interface PaginationMeta {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
 }
 
 interface MarketplaceTabProps {
@@ -33,28 +41,74 @@ const CATEGORIES = [
   { id: 'decor', name: 'Interior Decor' }
 ];
 
+const PRODUCTS_PER_PAGE = 12;
+
 export default function MarketplaceTab({ serverUrl }: MarketplaceTabProps) {
   const { addToCart, removeFromCart, cart, loading: cartLoading } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist, loading: wishlistLoading } = useWishlist();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta>({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
 
   // Searching & sorting filters
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Track adding items feedback
   const [addedItemMap, setAddedItemMap] = useState<Record<string, boolean>>({});
 
+  // Debounce search input
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset to page 1 on filter/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedCategory]);
+
+  // Scroll to top on page change
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    scrollToTop();
+  };
+
+  // Fetch paginated products from backend
   useEffect(() => {
     const fetchCatalog = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`${serverUrl}/api/marketplace/products`);
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setProducts(data);
+        const params = new URLSearchParams({
+          page: String(currentPage),
+          limit: String(PRODUCTS_PER_PAGE),
+          ...(debouncedSearch && { search: debouncedSearch }),
+          ...(selectedCategory !== 'all' && { category: selectedCategory }),
+        });
+        const response = await fetch(`${serverUrl}/api/marketplace/products?${params}`);
+        const json = await response.json();
+        if (json.data && Array.isArray(json.data)) {
+          setProducts(json.data);
+          setPaginationMeta({
+            currentPage: json.currentPage,
+            totalPages: json.totalPages,
+            totalItems: json.totalItems,
+            hasNextPage: json.hasNextPage,
+            hasPreviousPage: json.hasPreviousPage,
+          });
         }
       } catch (err) {
         console.error('Failed to pull marketplace products:', err);
@@ -63,7 +117,7 @@ export default function MarketplaceTab({ serverUrl }: MarketplaceTabProps) {
       }
     };
     fetchCatalog();
-  }, [serverUrl]);
+  }, [serverUrl, currentPage, debouncedSearch, selectedCategory]);
 
   // Handle adding product with temporary feedback trigger
   const handleAddToCart = async (
@@ -112,16 +166,6 @@ export default function MarketplaceTab({ serverUrl }: MarketplaceTabProps) {
       await addToWishlist(item);
     }
   };
-
-  // Filter products memo
-  const filteredProducts = useMemo(() => {
-    return products.filter(product => {
-      const matchCat = selectedCategory === 'all' || product.category === selectedCategory;
-      const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchCat && matchSearch;
-    });
-  }, [products, selectedCategory, searchQuery]);
 
   const globalLoading = loading || wishlistLoading || cartLoading;
 
@@ -249,14 +293,21 @@ export default function MarketplaceTab({ serverUrl }: MarketplaceTabProps) {
         </div>
       </div>
 
+      {/* Result count */}
+      {!loading && paginationMeta.totalItems > 0 && (
+        <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">
+          Showing page {paginationMeta.currentPage} of {paginationMeta.totalPages} — {paginationMeta.totalItems} product{paginationMeta.totalItems !== 1 ? 's' : ''}
+        </div>
+      )}
+
       {/* Products list Grid */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(n => (
+          {Array.from({ length: PRODUCTS_PER_PAGE }).map((_, n) => (
             <div key={n} className="glass-panel aspect-[3/4] rounded-2xl skeleton-pulse bg-white/[0.01]" />
           ))}
         </div>
-      ) : filteredProducts.length === 0 ? (
+      ) : products.length === 0 ? (
         <div className="glass-panel p-20 rounded-2xl text-center flex flex-col items-center justify-center">
           <Filter className="w-10 h-10 text-gray-600 mb-4" />
           <h3 className="text-sm font-bold text-gray-400">No matching items found</h3>
@@ -264,7 +315,7 @@ export default function MarketplaceTab({ serverUrl }: MarketplaceTabProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
+          {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -272,6 +323,17 @@ export default function MarketplaceTab({ serverUrl }: MarketplaceTabProps) {
             />
           ))}
         </div>
+      )}
+
+      {/* Pagination Controls */}
+      {!loading && paginationMeta.totalPages > 1 && (
+        <Pagination
+          currentPage={paginationMeta.currentPage}
+          totalPages={paginationMeta.totalPages}
+          hasNextPage={paginationMeta.hasNextPage}
+          hasPreviousPage={paginationMeta.hasPreviousPage}
+          onPageChange={handlePageChange}
+        />
       )}
 
     </div>

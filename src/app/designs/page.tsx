@@ -1,19 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
+import Pagination from '../../components/Pagination';
 import { Search, Compass, Eye, Sparkles } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const DESIGNS_PER_PAGE = 9;
 
 export default function ExploreDesignsPage() {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Debounce search string input
   useEffect(() => {
@@ -23,18 +26,43 @@ export default function ExploreDesignsPage() {
     return () => clearTimeout(handler);
   }, [search]);
 
-  // Fetch designs list from MongoDB via public API
+  // Reset to page 1 when filters/search change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, selectedStyle]);
+
+  // Scroll to top of listing section on page change
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    scrollToTop();
+  };
+
+  // Fetch designs list from MongoDB via public API (paginated)
   const { data, isLoading, error } = useQuery({
-    queryKey: ['designs', debouncedSearch, selectedStyle],
+    queryKey: ['designs', debouncedSearch, selectedStyle, currentPage],
     queryFn: async () => {
       const res = await axios.get(`${SERVER_URL}/api/designs`, {
-        params: { search: debouncedSearch, style: selectedStyle }
+        params: {
+          search: debouncedSearch,
+          style: selectedStyle,
+          page: currentPage,
+          limit: DESIGNS_PER_PAGE
+        }
       });
       return res.data;
     }
   });
 
   const designs = data?.designs || [];
+  const totalPages = data?.totalPages ?? 1;
+  const hasNextPage = data?.hasNextPage ?? false;
+  const hasPreviousPage = data?.hasPreviousPage ?? false;
+  const totalItems = data?.totalItems ?? 0;
+
   const styles = ['all', 'Japandi', 'Scandinavian', 'Industrial', 'Bohemian', 'Minimalist'];
 
   return (
@@ -79,6 +107,15 @@ export default function ExploreDesignsPage() {
           </div>
         </div>
 
+        {/* Result count */}
+        {!isLoading && !error && (
+          <div className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">
+            {totalItems > 0
+              ? `Showing page ${currentPage} of ${totalPages} — ${totalItems} concept${totalItems !== 1 ? 's' : ''}`
+              : ''}
+          </div>
+        )}
+
         {/* Error handling notification block */}
         {error && (
           <div className="w-full text-center py-6 text-xs text-rose-500 font-bold uppercase tracking-wider">
@@ -89,7 +126,7 @@ export default function ExploreDesignsPage() {
         {/* Design Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
-            Array.from({ length: 6 }).map((_, idx) => (
+            Array.from({ length: DESIGNS_PER_PAGE }).map((_, idx) => (
               <div key={idx} className="glass-panel rounded-2xl overflow-hidden flex flex-col bg-white dark:bg-slate-900/60 shadow-lg animate-pulse border border-white/5">
                 <div className="aspect-[4/3] w-full bg-slate-200 dark:bg-slate-800" />
                 <div className="p-5 space-y-4 flex-grow flex flex-col justify-between">
@@ -151,6 +188,17 @@ export default function ExploreDesignsPage() {
             ))
           )}
         </div>
+
+        {/* Pagination Controls */}
+        {!isLoading && totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            hasNextPage={hasNextPage}
+            hasPreviousPage={hasPreviousPage}
+            onPageChange={handlePageChange}
+          />
+        )}
 
       </main>
 

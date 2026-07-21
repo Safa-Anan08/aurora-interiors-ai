@@ -6,7 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { ClipboardList, ChevronLeft, ChevronRight, Truck, CheckSquare, XCircle, Search } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminOrdersManagement() {
   const queryClient = useQueryClient();

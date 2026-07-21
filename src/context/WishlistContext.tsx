@@ -27,7 +27,7 @@ interface WishlistContextType {
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined);
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -121,27 +121,25 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
     setLoading(true);
     try {
-      if (user) {
-        // Sync to Mongo
-        const res = await axios.post(`${SERVER_URL}/api/wishlist`, { productId: product.id });
-        if (res.data.success) {
-          const mapped = res.data.wishlist.products.map((p: any) => ({
-            id: p._id || p.id,
-            name: p.name,
-            category: p.category,
-            price: p.price,
-            description: p.description,
-            image: p.image,
-            specs: p.specs instanceof Map ? Object.fromEntries(p.specs) : p.specs || {},
-            rating: p.rating,
-            reviewsCount: p.reviewsCount
-          }));
-          setWishlist(mapped);
-          toast.success(`${product.name} saved to wishlist!`);
-        }
-      } else {
-        // Local state
-        setWishlist(prev => [...prev, product]);
+      if (!user) {
+        toast.error('Please login to continue.');
+        return;
+      }
+      // Sync to Mongo
+      const res = await axios.post(`${SERVER_URL}/api/wishlist`, { productId: product.id });
+      if (res.data.success) {
+        const mapped = res.data.wishlist.products.map((p: any) => ({
+          id: p._id || p.id,
+          name: p.name,
+          category: p.category,
+          price: p.price,
+          description: p.description,
+          image: p.image,
+          specs: p.specs instanceof Map ? Object.fromEntries(p.specs) : p.specs || {},
+          rating: p.rating,
+          reviewsCount: p.reviewsCount
+        }));
+        setWishlist(mapped);
         toast.success(`${product.name} saved to wishlist!`);
       }
     } catch (err: any) {
@@ -157,8 +155,10 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
 
     setLoading(true);
     try {
-      if (user) {
-        // Remove from Mongo
+      if (!user) {
+        setWishlist(prev => prev.filter(p => p.id !== productId));
+        toast.success(`${prodName} removed from wishlist.`);
+      } else {
         const res = await axios.delete(`${SERVER_URL}/api/wishlist/${productId}`);
         if (res.data.success) {
           const mapped = res.data.wishlist.products.map((p: any) => ({
@@ -175,13 +175,9 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           setWishlist(mapped);
           toast.success(`${prodName} removed from wishlist.`);
         }
-      } else {
-        // Local state
-        setWishlist(prev => prev.filter(p => p.id !== productId));
-        toast.success(`${prodName} removed from wishlist.`);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.error?.message || 'Failed to remove from wishlist.');
+      toast.error('Failed to remove from wishlist.');
     } finally {
       setLoading(false);
     }

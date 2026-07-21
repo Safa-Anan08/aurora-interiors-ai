@@ -6,7 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Search, ChevronLeft, ChevronRight, User as UserIcon, Trash2, Eye, Shield, CheckCircle, AlertTriangle, EyeOff } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminUsersManagement() {
   const queryClient = useQueryClient();

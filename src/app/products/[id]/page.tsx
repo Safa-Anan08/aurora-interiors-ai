@@ -16,7 +16,7 @@ const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 export default function ProductDetailsPage() {
 
   const { id } = useParams() as { id: string };
-  const { cart, addToCart, removeFromCart } = useCart();
+  const { addToCart, addBundleToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const router = useRouter();
 
@@ -58,31 +58,42 @@ export default function ProductDetailsPage() {
       console.error('Error toggling wishlist:', err);
     }
   };
-
-  const handleAddToCart = async () => {
-    if (!product) return;
-
-    const isInCart = cart.some(item => item.id === product.id);
-
-    if (isInCart) {
-      await removeFromCart(product.id);
-
-      return;
-    }
-
-    await addToCart(
-      {
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category
-      },
-      quantity
-    );
-
-
+  const handleAddProduct = (e: React.MouseEvent, p: any) => {
+    e.stopPropagation();
+    addToCart({
+      id: p.id || p._id,
+      name: p.name,
+      price: p.price,
+      image: p.image,
+      category: p.category
+    });
+    toast.success(`${p.name} added to cart!`);
   };
+
+  // const handleAddToCart = async () => {
+  //   if (!product) return;
+
+  //   const isInCart = cart.some(item => item.id === product.id);
+
+  //   if (isInCart) {
+  //     await removeFromCart(product.id);
+
+  //     return;
+  //   }
+
+  //   await addToCart(
+  //     {
+  //       id: product.id,
+  //       name: product.name,
+  //       price: product.price,
+  //       image: product.image,
+  //       category: product.category
+  //     },
+  //     quantity
+  //   );
+
+
+  // };
 
   // Render Loading Skeleton
   if (isLoading) {
@@ -219,8 +230,14 @@ export default function ProductDetailsPage() {
                     +
                   </button>
                 </div>
-
                 <button
+                  onClick={(e) => handleAddProduct(e, product)}
+                  className="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.02] dark:hover:bg-white/5 text-[10px] font-bold text-slate-800 dark:text-gray-200 rounded-lg flex items-center justify-center gap-1.5 transition-colors border border-slate-200 dark:border-white/5 cursor-pointer"
+                >
+                  <ShoppingCart className="w-3.5 h-3.5" />
+                  Add to Cart
+                </button>
+                {/* <button
                   onClick={handleAddToCart}
                   className={`flex-1 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg cursor-pointer transition ${cart.some(item => item.id === product.id)
                     ? "bg-red-100 text-red-600 border border-red-300"
@@ -232,7 +249,7 @@ export default function ProductDetailsPage() {
                   {cart.some(item => item.id === product.id)
                     ? "Remove from Cart"
                     : "Add to Cart"}
-                </button>
+                </button> */}
 
                 <button
                   onClick={handleToggleWishlist}

@@ -15,7 +15,7 @@ export default function Navbar() {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
 
-  const SERVER_URL = 'http://localhost:5000';
+  const SERVER_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
   const toggleMobileMenu = () => setMobileMenuOpen(prev => !prev);
   const toggleUserDropdown = () => setUserDropdownOpen(prev => !prev);

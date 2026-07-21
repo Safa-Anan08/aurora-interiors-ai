@@ -1,36 +1,235 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏡 Aurora Interiors AI – Client
 
-## Getting Started
+Aurora Interiors AI is a premium AI-powered interior design platform that helps users visualize, personalize, and purchase interior products for their living spaces. Users can explore furniture, flooring, paints, lighting, and décor, receive AI-assisted recommendations, save favorite products, manage shopping carts, and securely complete purchases.
 
-First, run the development server:
+---
+
+## 🌐 Live Demo
+
+- **Live Website:** https://aurora-interiors-ai.vercel.app
+- **Client Repository:** https://github.com/Safa-Anan08/aurora-interiors-ai
+- **Server Repository:** https://github.com/Safa-Anan08/aurora-interiors-ai-server
+
+---
+
+## ✨ Features
+
+### 🔐 Authentication
+
+- Email & Password Authentication
+- Google OAuth Login
+- Demo User Login
+- Demo Admin Login
+- JWT Authentication
+- Protected Routes
+- Persistent Login
+
+### 🤖 AI Interior Designer
+
+- AI-powered interior design assistant
+- Personalized room recommendations
+- Interior consultation workflow
+- Design inspiration
+- AI design suggestions
+- Mood board generation
+- Room customization
+
+### 🛒 Marketplace
+
+- Browse premium interior products
+- Product search
+- Category filtering
+- Product details page
+- Product specifications
+- Product ratings & reviews
+
+Categories:
+
+- Furniture
+- Lighting
+- Flooring
+- Wall Paint
+- Interior Decor
+
+### ❤️ Wishlist
+
+- Save favorite products
+- Remove from wishlist
+- Persistent wishlist
+- Sync across sessions
+
+### 🛍 Shopping Cart
+
+- Add products
+- Remove products
+- Update quantities
+- Persistent cart
+- Checkout integration
+
+### 💳 Payments
+
+- Stripe Checkout
+- Checkout Success page
+- Checkout Cancel page
+
+### 👤 Dashboard
+
+- User Dashboard
+- Admin Dashboard
+- Profile Management
+- Order History
+- Product Management
+- Analytics
+
+### 🎨 UI & UX
+
+- Fully Responsive
+- Premium Luxury Design
+- Tailwind CSS
+- Framer Motion Animations
+- Glassmorphism Effects
+- Skeleton Loading
+- Toast Notifications
+
+---
+
+## 🚀 Tech Stack
+
+### Frontend
+
+- Next.js (App Router)
+- React
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- TanStack React Query
+- React Hook Form
+- Zod
+- Axios
+- Lucide React
+- React Hot Toast
+- Google OAuth
+- Stripe
+
+---
+
+## 📁 Folder Structure
+
+```text
+src/
+├── app/
+├── components/
+├── context/
+├── hooks/
+├── lib/
+├── services/
+├── types/
+└── utils/
+```
+
+---
+
+## ⚙️ Installation
+
+Clone the repository
+
+```bash
+git clone https://github.com/Safa-Anan08/aurora-interiors-ai-client.git
+```
+
+Move into the project
+
+```bash
+cd aurora-interiors-ai-client
+```
+
+Install dependencies
+
+```bash
+npm install
+```
+
+Run locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Production build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Start production
 
-## Learn More
+```bash
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔑 Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Create a `.env.local` file.
 
-## Deploy on Vercel
+```env
+NEXT_PUBLIC_API_URL=YOUR_BACKEND_URL
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=YOUR_STRIPE_PUBLISHABLE_KEY
+```
+
+---
+
+## 📦 Main Packages
+
+- next
+- react
+- typescript
+- tailwindcss
+- axios
+- @tanstack/react-query
+- react-hook-form
+- zod
+- framer-motion
+- react-hot-toast
+- lucide-react
+- @react-oauth/google
+- @stripe/stripe-js
+
+---
+
+## 📱 Responsive
+
+- Mobile
+- Tablet
+- Laptop
+- Desktop
+
+---
+
+## 🔒 Security
+
+- JWT Authentication
+- Google OAuth
+- Stripe Payment
+- Protected Routes
+- Environment Variables
+- Input Validation
+
+---
+
+## 👨‍💻 Developer
+
+**Safa Anan**
+
+- GitHub: https://github.com/Safa-Anan08
+- LinkedIn: https://www.linkedin.com/in/safa-anan/
+
+---
+
+## 📄 License
+
+This project is intended for educational and portfolio purposes.

@@ -46,9 +46,12 @@ export default function AddDesignPage() {
     const getProducts = async () => {
       setLoadingProducts(true);
       try {
-        const res = await axios.get(`${SERVER_URL}/api/marketplace/products`);
-        if (Array.isArray(res.data)) {
-          setAvailableProducts(res.data);
+        const res = await axios.get(`${SERVER_URL}/api/marketplace/products`, {
+          params: { limit: 100 }
+        });
+        const items = res.data.data ?? res.data;
+        if (Array.isArray(items)) {
+          setAvailableProducts(items);
         }
       } catch (err) {
         console.error('Failed to load products:', err);

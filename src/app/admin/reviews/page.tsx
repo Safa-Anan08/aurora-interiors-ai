@@ -6,7 +6,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Star, CheckCircle2, XCircle, Trash2, ShieldAlert } from 'lucide-react';
 
-const SERVER_URL = 'http://localhost:5000';
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function AdminReviewsManagement() {
   const queryClient = useQueryClient();
